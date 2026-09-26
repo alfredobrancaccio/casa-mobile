@@ -1,5 +1,6 @@
 import {
   type AuthData,
+  callService,
   type Connection,
   createConnection,
   ERR_INVALID_AUTH,
@@ -115,6 +116,7 @@ export async function connectLive(): Promise<HaSource> {
       );
       return () => void unsub.then((u) => u()).catch(() => undefined);
     },
+    callService: (call) => callService(conn, call.domain, call.service, call.data, call.target),
     async logout() {
       try {
         await auth.revoke();

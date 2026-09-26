@@ -1,6 +1,6 @@
 // Stato globale dell'app (signals). La UI legge da qui; solo qui si parla con la sorgente HA.
 import { computed, signal } from '@preact/signals';
-import { type Action, buildCall, type CommandGateway, readOnlyGateway } from '../ha/commands';
+import { type Action, buildCall, type CommandGateway, createLiveGateway, readOnlyGateway } from '../ha/commands';
 import { connectLive, hasSession, SessionExpiredError } from '../ha/live';
 import type { ConnectionState, ForecastItem, HaSource, HassEntities } from '../ha/types';
 import { HOUSE } from '../config/house';
@@ -105,12 +105,16 @@ export function notify(text: string, tone: Toast['tone'] = 'neutral'): void {
   setTimeout(() => (toasts.value = toasts.value.filter((t) => t.id !== id)), 3500);
 }
 
-const gateway: CommandGateway = readOnlyGateway;
-export const controlsEnabled = gateway.enabled;
+// Con la connessione reale i comandi vanno a Home Assistant; con l'istantanea restano in sola lettura.
+const gateway = computed<CommandGateway>(() => {
+  const send = source.value?.callService;
+  return send ? createLiveGateway(send, (id) => states.peek()[id]) : readOnlyGateway;
+});
+export const controlsEnabled = computed(() => gateway.value.enabled);
 
 /** Unico punto da cui la UI invia azioni verso Home Assistant. */
 export async function run(entityId: string, action: Action): Promise<void> {
-  const result = await gateway.execute(buildCall(entityId, action));
+  const result = await gateway.value.execute(buildCall(entityId, action));
   if (!result.ok) {
     notify(result.reason === 'read-only' ? 'Sola lettura: comando non inviato' : result.message,
       result.reason === 'read-only' ? 'neutral' : 'error');

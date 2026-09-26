@@ -3,10 +3,11 @@
 // Ogni azione della UI diventa una chiamata di servizio descritta in modo esplicito
 // (dominio, servizio, entita, dati) e passa da un unico gateway.
 //
-// In questa versione il gateway e DISATTIVATO: la dashboard e in sola lettura.
-// Nessun `call_service` viene inviato a Home Assistant. Per attivare i controlli
-// servira un gateway che inoltri `ServiceCall` alla connessione autenticata:
-// questa modifica richiede un'autorizzazione esplicita.
+// Con la sorgente reale il gateway inoltra `call_service` alla connessione WebSocket
+// gia autenticata con l'account dell'utente. Con l'istantanea di sviluppo resta in sola lettura.
+// Sono ammessi solo i domini che la UI sa controllare: allarme, serrature e simili
+// restano esclusi (richiedono una gestione separata, ad esempio con PIN).
+import type { HassEntity } from './types';
 import { domainOf } from '../model/entity';
 
 export interface ServiceCall {
@@ -73,7 +74,9 @@ export function buildCall(entityId: string, action: Action): ServiceCall {
   }
 }
 
-export type CommandResult = { ok: true } | { ok: false; reason: 'read-only' | 'error'; message: string };
+export type CommandResult =
+  | { ok: true }
+  | { ok: false; reason: 'read-only' | 'unavailable' | 'error'; message: string };
 
 export interface CommandGateway {
   readonly enabled: boolean;
@@ -88,3 +91,49 @@ export const readOnlyGateway: CommandGateway = {
     return { ok: false, reason: 'read-only', message: 'Controlli non ancora attivi' };
   },
 };
+
+/** Domini per cui la UI prevede controlli. Tutto il resto viene rifiutato prima dell'invio. */
+export const CONTROLLABLE_DOMAINS: ReadonlySet<string> = new Set([
+  'light', 'switch', 'fan', 'valve', 'cover', 'climate', 'media_player', 'scene',
+]);
+
+/** Errore restituito da Home Assistant (`{ code, message }`) o codice numerico della libreria. */
+function describeFailure(err: unknown): string {
+  if (err === 3) return 'Connessione a Home Assistant persa: riprova';
+  if (err && typeof err === 'object') {
+    const { code, message } = err as { code?: unknown; message?: unknown };
+    if (code === 'not_found') return 'Servizio non disponibile in Home Assistant';
+    if (code === 'unauthorized') return 'Account non autorizzato per questo comando';
+    if (typeof message === 'string' && message) return message;
+  }
+  return 'Comando non riuscito';
+}
+
+/**
+ * Gateway reale: verifica dominio e disponibilita dell'entita, poi invia il comando.
+ * `send` e la `call_service` della connessione autenticata; `stateOf` legge lo stato corrente.
+ */
+export function createLiveGateway(
+  send: (call: ServiceCall) => Promise<unknown>,
+  stateOf: (entityId: string) => HassEntity | undefined,
+): CommandGateway {
+  return {
+    enabled: true,
+    async execute(call) {
+      const entityId = call.target.entity_id;
+      if (!CONTROLLABLE_DOMAINS.has(call.domain) || !CONTROLLABLE_DOMAINS.has(domainOf(entityId))) {
+        return { ok: false, reason: 'error', message: 'Comando non consentito da questa app' };
+      }
+      const s = stateOf(entityId);
+      if (!s) return { ok: false, reason: 'unavailable', message: 'Dispositivo non trovato in Home Assistant' };
+      if (s.state === 'unavailable') return { ok: false, reason: 'unavailable', message: 'Dispositivo non raggiungibile' };
+      try {
+        await send(call);
+        return { ok: true };
+      } catch (err) {
+        console.warn('[casa-mobile] comando non riuscito:', call, err);
+        return { ok: false, reason: 'error', message: describeFailure(err) };
+      }
+    },
+  };
+}

@@ -73,13 +73,35 @@ Barra inferiore a icone: Home, Stanze, Dispositivi, Energia, Altro.
 Lista della spesa, I miei dispositivi, Stato e manutenzione, Rete e connessione,
 Impostazioni, Informazioni ed Esci.
 
-## Controlli: sola lettura
+## Controlli
 
-Ogni azione passa da `src/ha/commands.ts`. Il gateway attuale **non invia comandi**:
-costruisce la chiamata di servizio, la registra in console e mostra un avviso.
-L'attivazione dei controlli reali richiede un'autorizzazione esplicita.
+Ogni azione passa da `src/ha/commands.ts` (`buildCall` → gateway) ed e inviata con `call_service`
+sulla connessione WebSocket gia autenticata con l'account dell'utente.
+
+- Domini ammessi: `light`, `switch`, `fan`, `valve`, `cover`, `climate`, `media_player`, `scene`.
+  Tutto il resto (allarme, serrature...) e rifiutato prima dell'invio.
+- Entita assente o `unavailable`: il comando non parte e compare un avviso.
+- Errori di Home Assistant (servizio inesistente, permessi, connessione persa): avviso in rosso.
+- Con l'istantanea di sviluppo (`?demo=`) i comandi restano in sola lettura.
+
+## Installazione su iPhone (schermata Home)
+
+`index.html` contiene i meta tag Apple e il link al manifest; i file statici stanno in `public/`
+e Vite li copia nella radice di `dist/` a ogni build. Percorsi relativi (`base: './'`), nessun
+service worker.
+
+```
+public/
+  manifest.json           nome "Casa", display standalone
+  apple-touch-icon.png    180x180
+  icon-192.png            192x192
+  icon-512.png            512x512
+  icon-512-maskable.png   512x512, area sicura per il ritaglio
+```
+
+Se un'icona manca, `npm run build` lo segnala con un avviso.
 
 ## Deploy
 
-Non ancora effettuato. La build (`dist/`) e pensata per essere servita da
-`/config/www/casa-mobile/`, cioe `/local/casa-mobile/index.html`.
+La build (`dist/`) e pensata per essere servita da `/config/www/casa-mobile/`,
+cioe `/local/casa-mobile/index.html`: copiare **il contenuto** di `dist/` in quella cartella.

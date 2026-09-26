@@ -1,4 +1,5 @@
 import type { HassEntities, HassEntity } from 'home-assistant-js-websocket';
+import type { ServiceCall } from './commands';
 
 export type { HassEntities, HassEntity };
 
@@ -86,5 +87,7 @@ export interface HaSource {
   subscribeForecast(entityId: string, cb: (items: ForecastItem[]) => void): () => void;
   /** Elementi di una lista (todo.*), aggiornati in tempo reale. Sola lettura. */
   subscribeTodo(entityId: string, cb: (items: TodoItem[]) => void): () => void;
+  /** Invia una chiamata di servizio. Assente nell'istantanea di sviluppo (sola lettura). */
+  callService?(call: ServiceCall): Promise<unknown>;
   logout(): Promise<void>;
 }

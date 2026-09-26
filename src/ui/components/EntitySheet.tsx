@@ -49,7 +49,7 @@ export function EntitySheet() {
           <div class="sheet__body">
             <Controls info={info} s={s} />
           </div>
-          {!controlsEnabled && (
+          {!controlsEnabled.value && (
             <p class="sheet__note">
               <Icon name="lock" size="inline" />
               Sola lettura: i comandi vengono preparati ma non inviati.

@@ -269,8 +269,8 @@ export function SettingsPage() {
       </Section>
       <Section title="Controlli">
         <List>
-          <ListRow icon="lock" title={controlsEnabled ? 'Controlli attivi' : 'Sola lettura'}
-            detail={controlsEnabled ? undefined : 'I comandi vengono preparati ma non inviati a Home Assistant.'} />
+          <ListRow icon="lock" title={controlsEnabled.value ? 'Controlli attivi' : 'Sola lettura'}
+            detail={controlsEnabled.value ? undefined : 'I comandi vengono preparati ma non inviati a Home Assistant.'} />
         </List>
       </Section>
     </>
@@ -289,7 +289,7 @@ export function InfoPage() {
         <ListRow icon="home" title="Profilo" value={p.displayName ?? 'Casa'} detail={p.kind === 'shared' ? 'Profilo condiviso, senza dati personali' : undefined} />
         <ListRow icon="info" title="Account Home Assistant" value={src.user.name} />
         <ListRow icon="network" title="Dati" value={src.kind === 'demo' ? 'Istantanea di sviluppo' : 'Tempo reale'} />
-        <ListRow icon="lock" title="Modalità" value={controlsEnabled ? 'Controlli attivi' : 'Sola lettura'} />
+        <ListRow icon="lock" title="Modalità" value={controlsEnabled.value ? 'Controlli attivi' : 'Sola lettura'} />
         <ListRow icon="devices" title="Versione" value={APP_VERSION} />
       </List>
     </>

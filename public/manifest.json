@@ -3,6 +3,7 @@
   "short_name": "Casa",
   "description": "Dashboard mobile-first per Home Assistant",
   "lang": "it",
+  "id": "./",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+
+# Istantanea di sviluppo: contiene stati reali della casa, non va condivisa
+dev-data/*.json
+
+.env.local
+.env
+.env.*
+!.env.example
+
+*.log
+.ha_token

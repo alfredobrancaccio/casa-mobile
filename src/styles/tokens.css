@@ -1,0 +1,167 @@
+/* SISTEMA CROMATICO — unico punto dei colori dell'app (DESIGN.md).
+ *
+ * Principi presi da DESIGN.md:
+ * - inchiostro su tela chiara; la tinta piena scura e riservata alle CTA (--cta-*);
+ * - un solo accento funzionale, il blu del sistema (link/success): stati attivi, focus, selezione;
+ * - il gradiente mesh multicolore e l'unica decorazione, solo a scala hero (--mesh-*);
+ * - ombre impilate leggere con anello sottile, mai un'ombra pesante;
+ * - nessun sesto colore d'accento: stato (critico/avviso) ed energia sono scale funzionali separate.
+ *
+ * Due modalita dello stesso sistema:
+ * - light "porcellana": grigi a sottotono freddo, superfici bianche su tela appena azzurrata;
+ * - dark "notte blu": blu-inchiostro stratificato (tela < superficie < superficie 2), niente nero puro.
+ * Contrasti verificati: testi >= 4.5:1, icone e bordi di stato >= 3:1, in entrambe le modalita.
+ */
+:root {
+  color-scheme: light;
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --surface-2: #eceff5;
+  --ink: #10131a;
+  --body: #454e60;
+  --mute: #5c6576;
+  --hairline: #e1e5ed;
+
+  /* accento funzionale (stati attivi, selezione, focus) */
+  --accent: #0a63d6;
+  --accent-fg: #ffffff;
+  --accent-soft: #e4edfb;
+  --accent-ink: #0b4aa3;
+  /* CTA: inchiostro pieno, come da DESIGN.md */
+  --cta-bg: #10131a;
+  --cta-fg: #ffffff;
+
+  --active-bg: var(--accent);
+  --active-fg: var(--accent-fg);
+  --active-soft: rgb(255 255 255 / 0.2);
+  --focus: var(--accent);
+  --link: var(--accent);
+
+  --critical: #c50000;
+  --critical-soft: #fbe1e2;
+  --on-critical: #ffffff;
+  --warning: #9a4d05;
+  --warning-soft: #fdf0d8;
+  --info: var(--accent-ink);
+  --info-soft: var(--accent-soft);
+
+  /* serie energia (validate con dataviz, sempre con etichetta e icona) */
+  --solar: #eda100;
+  --grid: #4a3aa7;
+  --battery: #1baf7a;
+  --home: var(--ink);
+
+  /* gradiente mesh di DESIGN.md (develop / preview / ship), solo dietro il saluto della Home */
+  --mesh-1: rgb(0 124 240 / 0.16);
+  --mesh-2: rgb(0 223 216 / 0.14);
+  --mesh-3: rgb(121 40 202 / 0.1);
+  --mesh-4: rgb(249 203 40 / 0.12);
+
+  --backdrop: rgb(16 19 26 / 0.3);
+  --ring: rgb(16 24 40 / 0.08);
+  --shadow-1: 0 0 0 1px var(--ring);
+  --shadow-2: 0 0 0 1px var(--ring), 0 1px 1px rgb(16 24 40 / 0.02), 0 2px 2px rgb(16 24 40 / 0.04);
+  --shadow-4: 0 0 0 1px var(--ring), 0 2px 2px rgb(16 24 40 / 0.04), 0 8px 16px -4px rgb(16 24 40 / 0.06);
+  --shadow-5: 0 0 0 1px var(--ring), 0 1px 1px rgb(16 24 40 / 0.02), 0 8px 16px -4px rgb(16 24 40 / 0.06),
+    0 24px 32px -8px rgb(16 24 40 / 0.1);
+
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-full: 9999px;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 40px;
+
+  --font: 'Geist', Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --nav-h: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --gutter: 16px;
+}
+
+/* Tema scuro "notte blu": segue il sistema salvo scelta esplicita in Impostazioni (data-theme). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0b0e14;
+    --surface: #131823;
+    --surface-2: #1b2130;
+    --ink: #e8ecf4;
+    --body: #aab3c5;
+    --mute: #8f99ac;
+    --hairline: #252c3b;
+    --accent: #5b9dff;
+    --accent-fg: #06101f;
+    --accent-soft: #172a4b;
+    --accent-ink: #a6c8ff;
+    --cta-bg: #e8ecf4;
+    --cta-fg: #0b0e14;
+    --active-soft: rgb(6 16 31 / 0.14);
+    --critical: #ff7a7f;
+    --critical-soft: #3a1519;
+    --on-critical: #1a0507;
+    --warning: #f5b041;
+    --warning-soft: #33250e;
+    --solar: #c98500;
+    --grid: #9085e9;
+    --battery: #199e70;
+    --mesh-1: rgb(0 124 240 / 0.26);
+    --mesh-2: rgb(0 223 216 / 0.14);
+    --mesh-3: rgb(121 40 202 / 0.24);
+    --mesh-4: rgb(255 0 128 / 0.1);
+    --backdrop: rgb(3 6 12 / 0.55);
+    --ring: rgb(255 255 255 / 0.07);
+    --shadow-2: 0 0 0 1px var(--ring), 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-4: 0 0 0 1px var(--ring), 0 8px 16px -4px rgb(0 0 0 / 0.45);
+    --shadow-5: 0 0 0 1px rgb(255 255 255 / 0.09), 0 24px 32px -8px rgb(0 0 0 / 0.6);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b0e14;
+  --surface: #131823;
+  --surface-2: #1b2130;
+  --ink: #e8ecf4;
+  --body: #aab3c5;
+  --mute: #8f99ac;
+  --hairline: #252c3b;
+  --accent: #5b9dff;
+  --accent-fg: #06101f;
+  --accent-soft: #172a4b;
+  --accent-ink: #a6c8ff;
+  --cta-bg: #e8ecf4;
+  --cta-fg: #0b0e14;
+  --active-soft: rgb(6 16 31 / 0.14);
+  --critical: #ff7a7f;
+  --critical-soft: #3a1519;
+  --on-critical: #1a0507;
+  --warning: #f5b041;
+  --warning-soft: #33250e;
+  --solar: #c98500;
+  --grid: #9085e9;
+  --battery: #199e70;
+  --mesh-1: rgb(0 124 240 / 0.26);
+  --mesh-2: rgb(0 223 216 / 0.14);
+  --mesh-3: rgb(121 40 202 / 0.24);
+  --mesh-4: rgb(255 0 128 / 0.1);
+  --backdrop: rgb(3 6 12 / 0.55);
+  --ring: rgb(255 255 255 / 0.07);
+  --shadow-2: 0 0 0 1px var(--ring), 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-4: 0 0 0 1px var(--ring), 0 8px 16px -4px rgb(0 0 0 / 0.45);
+  --shadow-5: 0 0 0 1px rgb(255 255 255 / 0.09), 0 24px 32px -8px rgb(0 0 0 / 0.6);
+}
+
+@media (min-width: 600px) {
+  :root {
+    --gutter: 24px;
+  }
+}
